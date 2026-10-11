@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+title: "bvar-toolkit for Python: Python code for large Bayesian VARs"
+message: >-
+  If you use this software, please cite both the paper whose method you use
+  (see CITING.md in bvar-toolkit) and this software record.
+type: software
+authors:
+  - family-names: Chan
+    given-names: Joshua C. C.
+    orcid: "https://orcid.org/0000-0003-3632-128X"
+    affiliation: Purdue University
+repository-code: "https://github.com/joshuaccchan/bvar-toolkit-python"
+abstract: >-
+  Python code for estimating large Bayesian vector autoregressions, the Python
+  version of the MATLAB library bvar-toolkit. The functions keep their MATLAB
+  names and arguments, and tests check each one against test cases exported
+  from the MATLAB library, including draws made from a stream of random
+  numbers shared by the two languages. Tutorials answer questions from applied
+  work with the settings of a published paper, with scripts that run the same
+  analysis on other data.
+keywords:
+  - Bayesian econometrics
+  - vector autoregression
+  - shrinkage priors
+  - marginal likelihood
+  - Markov chain Monte Carlo
+  - macroeconomic forecasting
+  - Python
+license: MIT
