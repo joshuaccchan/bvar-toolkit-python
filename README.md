@@ -9,18 +9,24 @@ version: the same functions under the same names, each tested against its MATLAB
 toolkit's tutorials and how-to guides with Python code.
 
 It covers all 118 core functions, the six tutorials and the eight how-to guides.
-[PARITY.md](PARITY.md) lists every function and how it was checked.
+[PARITY.md](https://github.com/joshuaccchan/bvar-toolkit-python/blob/main/PARITY.md) lists every function and how it was checked.
 
 ## Installation
 
-From a clone of this repository:
+```
+pip install bvar-toolkit
+```
+
+installs the package with the NumPy, SciPy, pandas and matplotlib it needs. The tutorials and
+the guides read the data in this repository, so to run them, install from a clone instead:
 
 ```
+git clone https://github.com/joshuaccchan/bvar-toolkit-python.git
+cd bvar-toolkit-python
 pip install -e ".[tutorials]"
 ```
 
-The package needs NumPy, SciPy, pandas and matplotlib. The `tutorials` extra adds openpyxl,
-which the shrinkage tutorial uses to read an Excel file.
+The `tutorials` extra adds openpyxl, which the shrinkage tutorial uses to read an Excel file.
 
 ## A First Example
 
@@ -42,7 +48,7 @@ lml, kappa = bvt.priors.acp_opt_kappa(Y0, Y, Z, p, [.04, .04], 'stru')
 
 Here `kappa[0]` and `kappa[1]` are the own-lag and other-lag hyperparameters, 0.542 and
 0.0128, and `lml` is the maximized log marginal likelihood, -1237.5. The
-[shrinkage tutorial](tutorials/shrinkage/) takes the same steps for 21 variables.
+[shrinkage tutorial](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/tutorials/shrinkage/) takes the same steps for 21 variables.
 
 ## Conventions
 
@@ -70,32 +76,15 @@ do for themselves.
 ## How the Port Is Checked
 
 The MATLAB toolkit is the reference.
-[`tools/matlab/export_fixtures.m`](tools/matlab/export_fixtures.m) runs each ported function in
-MATLAB, at a pinned commit of bvar-toolkit, and saves its inputs and outputs in
-`tests/fixtures`. The tests run the Python function on the same inputs and require every entry
-of every output to agree to 1e-10. The largest difference measured is 2e-11. Four marginal
-likelihoods are the exceptions, and PARITY.md explains them. That of VAR-SVO,
-`bvt.ml.mlvarsv_arsvo_redu`, agrees to 4e-9, because a beta fit inside it stops within its
-tolerance. Those of the three MA models of Chan (2020) agree to 6e-8: they search for the mode of
-a density whose rounding differs between the languages, and the rounding fixes that mode only to
-about 2e-8.
-
-Functions that draw random numbers are compared on a shared stream. NumPy's `RandomState`
-reproduces the uniforms of MATLAB's Mersenne Twister bit for bit, and both languages turn them
-into normal, gamma and beta draws by the inverse distribution functions, into integers by
-rounding up, into permutations by sorting and into inverse-Wishart draws by the Bartlett
-decomposition: in MATLAB through the test versions of `rand`, `randn`, `gamrnd`, `betarnd`,
-`unidrnd`, `randi`, `randperm` and `iwishrnd` in `tools/matlab/replay`, and in Python through
-`bvt.Replay`. On that stream every draw agrees with MATLAB's, and so does the number of uniforms
-used. A generalized inverse Gaussian draw returns the mode of its distribution in both test
-versions. The optimizers `fminbnd` and `fminsearch` and the root finder `fzero` follow MATLAB's
-algorithms and stopping rules, and so do the gamma and beta fits of the marginal likelihoods,
-which use them. The line search of `fminunc` is not published: in its place, `fminsearch` finds
-the minimum, and the second derivative comes from `fminunc`'s finite-difference formula. On the
-test objectives this minimizer lies within 2e-8 of `fminunc`'s, and the test version of
-`fminunc` in `tools/matlab/replay` runs the same search. On the test objectives the optimizers and the root finder return MATLAB's
-results to the last digit and the fits agree to 5e-15, and [PARITY.md](PARITY.md) shows how
-closely the optimizers track MATLAB on the marginal likelihood of the shrinkage tutorial.
+[`tools/matlab/export_fixtures.m`](https://github.com/joshuaccchan/bvar-toolkit-python/blob/main/tools/matlab/export_fixtures.m) runs
+each function in MATLAB, at a pinned commit of bvar-toolkit, and saves its inputs and outputs.
+The tests run the Python function on the same inputs and require every entry of every output to
+agree to 1e-10. Four marginal likelihoods, which end in a numerical search, are tested at looser
+tolerances. Functions that draw random numbers run on a stream of uniforms that both languages
+share, through `bvt.Replay` in Python and the test versions in `tools/matlab/replay` in MATLAB,
+so every draw must agree. The optimizers and the root finder follow MATLAB's algorithms and
+stopping rules. [PARITY.md](https://github.com/joshuaccchan/bvar-toolkit-python/blob/main/PARITY.md) gives the largest difference for every function
+and explains the exceptions.
 
 The tests run on every push, together with the `your_data.py` script of every tutorial and the
 `guide.py` script of every guide.
@@ -104,22 +93,22 @@ The tests run on every push, together with the `your_data.py` script of every tu
 
 | Question | MATLAB version |
 |---|---|
-| [Does the Order of the Variables Change My VAR Results?](tutorials/variable_ordering/) | [variable_ordering](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/variable_ordering) |
-| [How Should I Choose the Shrinkage Hyperparameters of My BVAR?](tutorials/shrinkage/) | [shrinkage](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/shrinkage) |
-| [Which Stochastic Volatility Specification Should My VAR Use?](tutorials/sv_specification/) | [sv_specification](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/sv_specification) |
-| [Does Modeling the Volatility Improve My Forecasts?](tutorials/forecasting/) | [forecasting](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/forecasting) |
-| [Can I Use Many Sign Restrictions in My Large VAR?](tutorials/sign_restrictions/) | [sign_restrictions](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/sign_restrictions) |
-| [How Do I Handle Missing and Mixed-Frequency Data in My VAR?](tutorials/mixed_frequency/) | [mixed_frequency](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/mixed_frequency) |
+| [Does the Order of the Variables Change My VAR Results?](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/tutorials/variable_ordering/) | [variable_ordering](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/variable_ordering) |
+| [How Should I Choose the Shrinkage Hyperparameters of My BVAR?](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/tutorials/shrinkage/) | [shrinkage](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/shrinkage) |
+| [Which Stochastic Volatility Specification Should My VAR Use?](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/tutorials/sv_specification/) | [sv_specification](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/sv_specification) |
+| [Does Modeling the Volatility Improve My Forecasts?](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/tutorials/forecasting/) | [forecasting](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/forecasting) |
+| [Can I Use Many Sign Restrictions in My Large VAR?](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/tutorials/sign_restrictions/) | [sign_restrictions](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/sign_restrictions) |
+| [How Do I Handle Missing and Mixed-Frequency Data in My VAR?](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/tutorials/mixed_frequency/) | [mixed_frequency](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/mixed_frequency) |
 
 ## How-To Guides
 
-Each [guide](guides/) shows how to use the core functions on one small example with generated
+Each [guide](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/) shows how to use the core functions on one small example with generated
 data, in two series of four.
 
 | Series | Guides |
 |---|---|
-| Getting Started with Bayesian VARs | [stacking the equations](guides/var_stacking/), [drawing the coefficients](guides/coefficient_draw/), [Gibbs sampling](guides/gibbs_sampler/), [choosing the shrinkage by the marginal likelihood](guides/natural_conjugate_ml/) |
-| Forecasting with a VAR | [simulating data](guides/var_simulation/), [forecasting](guides/var_forecast/), [evaluating forecasts out of sample](guides/var_forecast_evaluation/), [choosing the lag length and the shrinkage for forecasting](guides/var_lag_shrinkage/) |
+| Getting Started with Bayesian VARs | [stacking the equations](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/var_stacking/), [drawing the coefficients](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/coefficient_draw/), [Gibbs sampling](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/gibbs_sampler/), [choosing the shrinkage by the marginal likelihood](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/natural_conjugate_ml/) |
+| Forecasting with a VAR | [simulating data](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/var_simulation/), [forecasting](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/var_forecast/), [evaluating forecasts out of sample](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/var_forecast_evaluation/), [choosing the lag length and the shrinkage for forecasting](https://github.com/joshuaccchan/bvar-toolkit-python/tree/main/guides/var_lag_shrinkage/) |
 
 ## Citation
 
@@ -129,4 +118,4 @@ methods you use.
 
 ## License
 
-MIT; see [LICENSE](LICENSE).
+MIT; see [LICENSE](https://github.com/joshuaccchan/bvar-toolkit-python/blob/main/LICENSE).

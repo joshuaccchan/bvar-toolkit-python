@@ -6,7 +6,7 @@ Positions of variables count from 0, and every function that draws random number
 rng argument (None, an integer seed, a numpy.random.Generator or a Stream).
 """
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 from ._rng import Replay, Stream
 from ._struct import Struct
