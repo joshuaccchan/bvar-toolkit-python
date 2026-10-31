@@ -1,5 +1,7 @@
 # bvar-toolkit for Python
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23826635.svg)](https://doi.org/10.5281/zenodo.23826635)
+
 [bvar-toolkit](https://github.com/joshuaccchan/bvar-toolkit) is a MATLAB library for large
 Bayesian VARs: samplers, shrinkage priors, stochastic volatility, marginal likelihoods and
 forecasting, built from fourteen published replication packages. This repository is its Python
