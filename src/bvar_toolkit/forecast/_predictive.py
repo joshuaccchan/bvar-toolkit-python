@@ -4,9 +4,7 @@ import numpy as np
 def predictive(A, Sig, ylag, H, tgt=None):
     """bvt.forecast.predictive - mean and standard deviation of the h-step predictive
     distribution of a reduced-form VAR, one row per posterior draw. Given the coefficients and
-    the error covariance matrix the h-step forecast is Gaussian: the mean iterates the VAR, and
-    the variance is the sum of Psi_j @ Sig @ Psi_j.T over j = 0 to h-1, with Psi_j the
-    moving-average matrices.
+    the error covariance matrix, the h-step forecast is Gaussian.
 
       mu, sd = bvt.forecast.predictive(A, Sig, ylag, H)
       mu, sd = bvt.forecast.predictive(A, Sig, ylag, H, tgt)
@@ -20,9 +18,8 @@ def predictive(A, Sig, ylag, H, tgt=None):
       tgt   : variables to return, counted from 0 (default all n)
       mu,sd : nsim x len(tgt) x H
 
-    Each row conditions on one draw of the parameters, so the spread of mu over rows is
-    parameter uncertainty and sd is the width of the conditional forecast density. The
-    predictive density of a variable is the mixture over rows.
+    The predictive density of a variable is the mixture over rows, whose quantiles
+    bvt.forecast.mixquantile computes.
 
     See:
     Chan, J.C.C. (forthcoming). Bayesian Macroeconometrics: Methods and Applications, Chapman &

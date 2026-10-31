@@ -17,8 +17,7 @@ def reduced_form(store_alp, store_beta, store_Sig):
 
     The structural form is A y_t = B x_t + eps_t with A unit lower triangular and
     Var(eps_t) = diag(sig). The reduced form follows by inversion:
-    Sigtilde = A^{-1} diag(sig) A^{-T} and Btilde = (A^{-1} B')'. Both are formed with
-    np.linalg.solve, for all draws at once.
+    Sigtilde = A^{-1} diag(sig) A^{-T} and Btilde = (A^{-1} B')'.
 
     See:
     Chan, J.C.C. (2022). Asymmetric Conjugate Priors for Large Bayesian VARs, Quantitative

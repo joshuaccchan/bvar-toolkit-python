@@ -13,11 +13,8 @@ def acp(p, Y, Z, prior, ridge=0.0):
       Z     : T x (n p + 1) lag matrix, intercept first (bvt.util.build_lags)
       prior : the Struct or dict from bvt.priors.acp_redu or acp_stru
       ridge : ridge*I added to the posterior precision inv(Vi) + Xi.T @ Xi of every equation;
-              default 0. A positive value changes the log marginal likelihood: on the ACP
-              package's 15-variable dataset at its own kappa = (.04, .0016, 1, 100), ridge = 0
-              and ridge = 1e-6 give log marginal likelihoods 1.99 apart, large enough to affect
-              a model comparison. Hold the setting fixed across the models being compared, and
-              report which one was used
+              default 0. A positive value changes the log marginal likelihood by enough to
+              affect a model comparison, so hold it fixed across the models being compared
 
     See:
     Chan, J.C.C. (2022). Asymmetric Conjugate Priors for Large Bayesian VARs, Quantitative

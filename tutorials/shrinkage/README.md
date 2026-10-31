@@ -360,7 +360,7 @@ grid of its Figure 1, which gives the intervals quoted above, and over the wider
 of Figure 1 here. For the 15-variable comparison it reads the Excel file in
 `data/chan2022_qe_acp` with openpyxl. It then draws from the posterior, scans the lag length and
 runs the forecasting exercise, whose code is not part of the package. The computation takes
-10.1 minutes using Python 3.13 with NumPy 2.4 and SciPy 1.17 on a computer with an Intel
+10.1 minutes using Python 3.13 with NumPy 2.5 and SciPy 1.18 on a computer with an Intel
 Core Ultra 7 255U processor and 32 GB of RAM. The script prints every result in this tutorial, or
 the numbers they are computed from, and saves the figures in the same folder as this page.
 

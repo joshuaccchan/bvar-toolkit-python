@@ -12,4 +12,9 @@ the MATLAB page within Monte Carlo error, and the others agree at the printed pr
 
 | Tutorial | Model and method |
 |---|---|
+| [Does the Order of the Variables Change My VAR Results?](variable_ordering/) | Cholesky and order-invariant stochastic volatility, the effect of the ordering on estimates and forecasts |
 | [How Should I Choose the Shrinkage Hyperparameters of My BVAR?](shrinkage/) | asymmetric conjugate prior, closed-form marginal likelihood, recursive forecasts |
+| [Which Stochastic Volatility Specification Should My VAR Use?](sv_specification/) | common, Cholesky, factor and outlier stochastic volatility, marginal likelihoods by importance sampling |
+| [Does Modeling the Volatility Improve My Forecasts?](forecasting/) | recursive forecasts from a homoskedastic VAR and two volatility models, log predictive likelihood, calibration |
+| [Can I Use Many Sign Restrictions in My Large VAR?](sign_restrictions/) | sign and ranking restrictions, the assignment of shocks to columns, impulse responses |
+| [How Do I Handle Missing and Mixed-Frequency Data in My VAR?](mixed_frequency/) | mixed-frequency VAR with common stochastic volatility, missing values drawn in one block |

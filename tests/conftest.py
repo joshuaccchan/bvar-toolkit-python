@@ -14,8 +14,9 @@ TOL = 1e-10
 
 
 def fixtures(namespace):
-    """The cases of one namespace, keyed by function name."""
-    return scipy.io.loadmat(FIXTURES / f'{namespace}.mat', simplify_cells=True)
+    """The cases of one namespace, keyed by function name, with MATLAB's classes: a double
+    that the MAT-file stores as a small integer comes back as a double."""
+    return scipy.io.loadmat(FIXTURES / f'{namespace}.mat', simplify_cells=True, mat_dtype=True)
 
 
 def cases(fx, name):
@@ -80,3 +81,13 @@ def check(fn, case, adapt=None, tol=TOL):
     assert len(out) == len(expected)
     for o, e in zip(out, expected):
         close(o, e, tol)
+
+
+def grid(fn):
+    """fn with its log target kernel evaluated on the grid given as the last argument, as the
+    MATLAB wrappers of export_fixtures.m return it."""
+    def wrapped(*args, rng=None):
+        *args, g = args
+        draw, flag, f = fn(*args, rng=rng)
+        return draw, flag, np.array([f(x) for x in np.atleast_1d(g)])
+    return wrapped

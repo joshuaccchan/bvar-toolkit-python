@@ -13,9 +13,8 @@ def diffmat(T, a=1.0):
       a : scalar autoregressive coefficient (default 1)
       H : T x T sparse lower bidiagonal matrix (csc_array)
 
-    This matrix writes a state equation as one linear system in the whole path, the form the
-    precision-based samplers use: for x_t = a*x_{t-1} + u_t with u ~ N(0, S), H @ x = u, so the
-    path has precision H.T @ inv(S) @ H - banded, hence an O(T) Cholesky.
+    For x_t = a*x_{t-1} + u_t with u ~ N(0, S), H @ x = u, so the path has the banded
+    precision H.T @ inv(S) @ H.
 
     Sign conventions in this toolkit, both of which appear in the papers:
       AR(1) / random-walk state:  H_rho  = I - rho*L   ->  diffmat(T, rho)

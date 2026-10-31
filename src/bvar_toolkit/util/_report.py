@@ -24,17 +24,14 @@ def _plain(x):
 
 def report(name, tbl, meta, outdir=None):
     """bvt.util.report - write a comparison table to <outdir>/<name>.csv and the settings to
-    <outdir>/<name>.json, and print the paths. outdir defaults to the temporary directory, so a
-    script that calls this leaves the working tree and a CI checkout clean.
+    <outdir>/<name>.json, and print the paths. outdir defaults to the temporary directory.
 
       f = bvt.util.report(name, tbl, meta)
       f = bvt.util.report(name, tbl, meta, outdir)
 
       name : base name of the files
       tbl  : one DataFrame, or a dict of DataFrames when the run produces more than one shape of
-             result, written one csv per entry as <name>_<key>.csv. Settings that differ by row
-             belong in the columns; a csv holds its table alone, so that reading it needs no
-             convention beyond pandas.read_csv.
+             result, written one csv per entry as <name>_<key>.csv.
       meta : dict describing the run (data file, sample, seeds, chain lengths, hyperparameters).
              The json file holds it with the run time, the Python, NumPy, SciPy and bvar_toolkit
              versions, and the names of the csv files.

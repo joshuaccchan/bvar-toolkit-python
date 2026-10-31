@@ -2,8 +2,7 @@ import numpy as np
 
 
 def vec(Y):
-    """bvt.util.vec - column-stacking operator: vec(Y) = Y.reshape(-1, order='F').
-    """
+    """bvt.util.vec - column-stacking operator: vec(Y) = Y.reshape(-1, order='F')."""
     return np.asarray(Y).reshape(-1, order='F')
 
 

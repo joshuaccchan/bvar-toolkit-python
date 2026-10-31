@@ -25,6 +25,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
+import scipy  # noqa: E402
 
 import bvar_toolkit as bvt  # noqa: E402
 
@@ -80,7 +81,8 @@ def main():
     log = os.path.join(tempfile.gettempdir(), 'bvar_toolkit_python_shrinkage_build_log.txt')
     sys.stdout = Tee(log)
     print(f"tutorials/shrinkage/build.py, {datetime.datetime.now():%Y-%m-%d %H:%M}, "
-          f"Python {platform.python_version()}, bvar_toolkit {bvt.__version__}")
+          f"Python {platform.python_version()}, NumPy {np.__version__}, "
+          f"SciPy {scipy.__version__}, bvar_toolkit {bvt.__version__}")
     t0 = time.perf_counter()
 
         # the data as main_BVAR_ACP.m of the package reads them

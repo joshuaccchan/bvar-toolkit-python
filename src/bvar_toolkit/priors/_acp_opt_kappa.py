@@ -24,16 +24,13 @@ def acp_opt_kappa(Y0, Y, Z, p, k0, form, idx_ns=None, symmetric=False, ridge=0.0
       idx_ns    : indices of nonstationary variables, counted from 0, whose first own lag gets
                   prior mean one (default none); no data transformation is implied
       symmetric : default False; True imposes kappa1 = kappa2 and searches (0,1) with fminbnd
-      ridge     : passed to bvt.ml.acp at every evaluation; default 0. The SVAR-sign package's
-                  copy of that likelihood adds 1e-6 to the diagonal of the posterior precision,
-                  so reproducing that package's hyperparameters needs ridge=1e-6, which moves
+      ridge     : passed to bvt.ml.acp at every evaluation; default 0. A positive value moves
                   the optimum
       ml_opt    : the maximized log marginal likelihood, bvt.ml.acp at kappa_opt
       kappa_opt : the full 4-vector [kappa1, kappa2, 1, 100] - kappa3 and kappa4 are held at
                   those values, as in the paper's application
 
-    The asymmetric search runs fminsearch over log(kappa1) and log(kappa2). fminbnd and
-    fminsearch are those of bvar_toolkit._optim.
+    The asymmetric search runs fminsearch over log(kappa1) and log(kappa2).
 
     See:
     Chan, J.C.C. (2022). Asymmetric Conjugate Priors for Large Bayesian VARs, Quantitative

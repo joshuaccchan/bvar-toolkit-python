@@ -10,7 +10,7 @@ __version__ = '0.1.0.dev0'
 
 from ._rng import Replay, Stream
 from ._struct import Struct
-from . import diag, forecast, ml, priors, samplers, structural, util
+from . import diag, forecast, ml, models, priors, samplers, structural, sv, util
 
-__all__ = ['Replay', 'Stream', 'Struct', 'diag', 'forecast', 'ml', 'priors', 'samplers',
-           'structural', 'util']
+__all__ = ['Replay', 'Stream', 'Struct', 'diag', 'forecast', 'ml', 'models', 'priors',
+           'samplers', 'structural', 'sv', 'util']

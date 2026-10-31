@@ -6,8 +6,9 @@ forecasting, built from fourteen published replication packages. This repository
 version: the same functions under the same names, each tested against its MATLAB twin, and the
 toolkit's tutorials with Python code.
 
-The port is in progress. It covers 32 of the 117 core functions and one of the six tutorials
-so far. [PARITY.md](PARITY.md) lists every function and how it was checked.
+It covers 117 of the 118 core functions and all six tutorials; `bvar.util.simulate_var`, which
+the MATLAB how-to guides use, is not ported yet. [PARITY.md](PARITY.md) lists every function
+and how it was checked.
 
 ## Installation
 
@@ -53,25 +54,47 @@ Here `kappa[0]` and `kappa[1]` are the own-lag and other-lag hyperparameters, 0.
 - **Structs.** A MATLAB struct is a `bvt.Struct`, a dict whose entries can also be read as
   attributes. Functions read structs by key, so a plain dict works as input.
 - **Random numbers.** Every function that draws takes an `rng` argument: `None`, an integer
-  seed or a `numpy.random.Generator`. A seed gives different draws in Python and in MATLAB.
+  seed or a `numpy.random.Generator`. It replaces the `'seed'` option of the MATLAB models. A
+  seed gives different draws in Python and in MATLAB.
+
+## Performance
+
+NumPy and SciPy bundle OpenBLAS, which by default starts one thread per core. For the small
+matrices of these samplers the threads can cost far more than they save: on the computer the
+tutorials were timed on, an Intel Core Ultra 7 255U under Windows, solving a linear system of
+539 equations took 440 milliseconds with the default threads and 3 milliseconds with one. Set
+the environment variable `OPENBLAS_NUM_THREADS=1` before Python starts, as the tutorial scripts
+do for themselves.
 
 ## How the Port Is Checked
 
-The MATLAB toolkit is the reference. [`tools/matlab/export_fixtures.m`](tools/matlab/export_fixtures.m)
-runs each ported function in MATLAB, at a pinned commit of bvar-toolkit, and saves its inputs
-and outputs in `tests/fixtures`. The tests run the Python function on the same inputs and
-require every entry of every output to agree to 1e-10. The largest difference measured is
-2e-13.
+The MATLAB toolkit is the reference.
+[`tools/matlab/export_fixtures.m`](tools/matlab/export_fixtures.m) runs each ported function in
+MATLAB, at a pinned commit of bvar-toolkit, and saves its inputs and outputs in
+`tests/fixtures`. The tests run the Python function on the same inputs and require every entry
+of every output to agree to 1e-10. The largest difference measured is 2e-11. Four marginal
+likelihoods are the exceptions, and PARITY.md explains them. That of VAR-SVO,
+`bvt.ml.mlvarsv_arsvo_redu`, agrees to 4e-9, because a beta fit inside it stops within its
+tolerance. Those of the three MA models of Chan (2020) agree to 6e-8: they search for the mode of
+a density whose rounding differs between the languages, and the rounding fixes that mode only to
+about 2e-8.
 
 Functions that draw random numbers are compared on a shared stream. NumPy's `RandomState`
 reproduces the uniforms of MATLAB's Mersenne Twister bit for bit, and both languages turn them
-into normal, gamma and beta draws by the inverse distribution functions: in MATLAB through
-the test versions of `rand`, `randn`, `gamrnd` and `betarnd` in `tools/matlab/replay`, and in
-Python through `bvt.Replay`. On that stream every draw agrees with MATLAB's, and so does the
-number of uniforms used. The optimizers `fminbnd` and `fminsearch` follow MATLAB's algorithms
-and stopping rules. On the test objectives they return MATLAB's results to the last digit, and
-[PARITY.md](PARITY.md) shows how closely they track MATLAB on the marginal likelihood of the
-shrinkage tutorial.
+into normal, gamma and beta draws by the inverse distribution functions, into integers by
+rounding up, into permutations by sorting and into inverse-Wishart draws by the Bartlett
+decomposition: in MATLAB through the test versions of `rand`, `randn`, `gamrnd`, `betarnd`,
+`unidrnd`, `randi`, `randperm` and `iwishrnd` in `tools/matlab/replay`, and in Python through
+`bvt.Replay`. On that stream every draw agrees with MATLAB's, and so does the number of uniforms
+used. A generalized inverse Gaussian draw returns the mode of its distribution in both test
+versions. The optimizers `fminbnd` and `fminsearch` and the root finder `fzero` follow MATLAB's
+algorithms and stopping rules, and so do the gamma and beta fits of the marginal likelihoods,
+which use them. The line search of `fminunc` is not published: in its place, `fminsearch` finds
+the minimum, and the second derivative comes from `fminunc`'s finite-difference formula. On the
+test objectives this minimizer lies within 2e-8 of `fminunc`'s, and the test version of
+`fminunc` in `tools/matlab/replay` runs the same search. On the test objectives the optimizers and the root finder return MATLAB's
+results to the last digit and the fits agree to 5e-15, and [PARITY.md](PARITY.md) shows how
+closely the optimizers track MATLAB on the marginal likelihood of the shrinkage tutorial.
 
 The tests run on every push, together with the `your_data.py` script of every tutorial.
 
@@ -79,7 +102,12 @@ The tests run on every push, together with the `your_data.py` script of every tu
 
 | Question | MATLAB version |
 |---|---|
+| [Does the Order of the Variables Change My VAR Results?](tutorials/variable_ordering/) | [variable_ordering](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/variable_ordering) |
 | [How Should I Choose the Shrinkage Hyperparameters of My BVAR?](tutorials/shrinkage/) | [shrinkage](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/shrinkage) |
+| [Which Stochastic Volatility Specification Should My VAR Use?](tutorials/sv_specification/) | [sv_specification](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/sv_specification) |
+| [Does Modeling the Volatility Improve My Forecasts?](tutorials/forecasting/) | [forecasting](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/forecasting) |
+| [Can I Use Many Sign Restrictions in My Large VAR?](tutorials/sign_restrictions/) | [sign_restrictions](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/sign_restrictions) |
+| [How Do I Handle Missing and Mixed-Frequency Data in My VAR?](tutorials/mixed_frequency/) | [mixed_frequency](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/mixed_frequency) |
 
 ## Citation
 

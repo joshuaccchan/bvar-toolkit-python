@@ -1,9 +1,13 @@
-"""fminbnd and fminsearch with the algorithms, defaults and stopping rules of MATLAB's, so
-that an optimization here takes the steps of its MATLAB twin: golden-section search with
-parabolic interpolation (Forsythe, Malcolm and Moler, 1977) and the Nelder-Mead simplex
-method as set out by Lagarias, Reeds, Wright and Wright (1998).
+"""fminbnd, fminsearch and fzero with the algorithms, defaults and stopping rules of
+MATLAB's, so that an optimization or a root search here takes the steps of its MATLAB twin:
+golden-section search with parabolic interpolation (Forsythe, Malcolm and Moler, 1977), the
+Nelder-Mead simplex method as set out by Lagarias, Reeds, Wright and Wright (1998), and the
+zero finder of Brent (1973). fminunc stands in for MATLAB's quasi-Newton fminunc on a function
+of one variable: the minimizer agrees with MATLAB's within fminunc's tolerance, and the
+returned second derivative uses fminunc's finite-difference formula.
 
 See:
+Brent, R.P. (1973). Algorithms for Minimization without Derivatives, Prentice-Hall.
 Forsythe, G.E., Malcolm, M.A. and Moler, C.B. (1977). Computer Methods for Mathematical
 Computations, Prentice-Hall.
 Lagarias, J.C., Reeds, J.A., Wright, M.H. and Wright, P.E. (1998). Convergence Properties
@@ -162,3 +166,81 @@ def fminsearch(f, x0, tolx=1e-4, tolf=1e-4, maxfun=None, maxiter=None):
         fv, v = fv[order], v[:, order]
         itercount += 1
     return v[:, 0].reshape(shape, order='F'), fv[0]
+
+
+def fminunc(f, x0):
+    """Minimize a function of one variable from x0, in place of MATLAB's fminunc; returns
+    (x, f(x), hess), with hess the finite-difference second derivative that fminunc returns,
+    from function values only: (f(x + 2h) - 2 f(x + h) + f(x))/h^2, with
+    h = eps^(1/4) sign(x) max(|x|, 1). The line search of fminunc is not published, so its
+    iterates cannot be reproduced. The minimizer here comes from the Nelder-Mead method at a
+    tolerance of 1e-10, so it lies within fminunc's tolerance of 1e-6 of fminunc's."""
+    x, fx = fminsearch(lambda z: f(z[0]), np.array([float(x0)]), tolx=1e-10, tolf=1e-10)
+    x = float(x[0])
+    eps = np.finfo(float).eps
+    h = eps**0.25 * np.sign(x) * max(abs(x), 1.0)
+    h = np.sign(h + eps) * abs(h)
+    f1 = f(x + h)
+    f2 = f(x + h + h)
+    return x, fx, (f2 - f1 - f1 + fx) / (h * h)
+
+
+def fzero(f, bracket, tolx=np.finfo(float).eps):
+    """A zero of the scalar function f in the interval bracket = (a, b), where f(a) and f(b)
+    have opposite signs; returns (x, f(x)). MATLAB's fzero for a given bracket: the method of
+    Brent (1973), bisection or interpolation at each step, stopped when the bracket is within
+    2*tolx*max(|x|, 1) of the current point."""
+    a, b = float(bracket[0]), float(bracket[1])
+    fa, fb = f(a), f(b)
+    if not (np.isfinite(fa) and np.isfinite(fb)):
+        raise ValueError('the function values at the interval end points must be finite')
+    if fa == 0.0:
+        return a, fa
+    if fb == 0.0:
+        return b, fb
+    if (fa > 0.0) == (fb > 0.0):
+        raise ValueError('the function values at the interval end points must differ in sign')
+    fc = fb
+    c = d = e = 0.0
+    while fb != 0 and a != b:
+        # b is the best point so far, a the previous one, and c on the other side of the zero
+        if (fb > 0) == (fc > 0):
+            c, fc = a, fa
+            d = e = b - a
+        if abs(fc) < abs(fb):
+            a, b, c = b, c, b
+            fa, fb, fc = fb, fc, fb
+        m = 0.5 * (c - b)
+        toler = 2.0 * tolx * max(abs(b), 1.0)
+        if abs(m) <= toler or fb == 0.0:
+            break
+        if abs(e) < toler or abs(fa) <= abs(fb):
+            d = e = m                               # bisection
+        else:
+            s = fb / fa
+            if a == c:                              # linear interpolation
+                p = 2.0 * m * s
+                q = 1.0 - s
+            else:                                   # inverse quadratic interpolation
+                q = fa / fc
+                r = fb / fc
+                p = s * (2.0 * m * q * (q - r) - (b - a) * (r - 1.0))
+                q = (q - 1.0) * (r - 1.0) * (s - 1.0)
+            if p > 0:
+                q = -q
+            else:
+                p = -p
+            if 2.0 * p < 3.0 * m * q - abs(toler * q) and p < abs(0.5 * e * q):
+                e = d
+                d = p / q
+            else:
+                d = e = m
+        a, fa = b, fb
+        if abs(d) > toler:
+            b = b + d
+        elif b > c:
+            b = b - toler
+        else:
+            b = b + toler
+        fb = f(b)
+    return b, fb

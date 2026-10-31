@@ -1,5 +1,7 @@
 # Data files are copies of published packages: keep their bytes
 data/** -text
+*.csv -text
 *.mat binary
 *.xlsx binary
 *.png binary
+*.npz binary

@@ -21,9 +21,6 @@ def igrnd(nu, S, rng=None):
     is
 
           sig2 = bvt.util.igrnd(nu0 + T/2, S0 + np.sum(e**2)/2)
-
-    which is the update repeated in the state-equation variance draws of the SV and TVP
-    samplers.
     """
     nu = np.asarray(nu, dtype=float)
     S = np.asarray(S, dtype=float)
