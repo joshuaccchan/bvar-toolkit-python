@@ -343,7 +343,7 @@ implements the asymmetric conjugate prior in MATLAB, R and Python. The function
 evaluates it over a grid of $`(\kappa_2, \kappa_3)`$ for a four-variable VAR with seven lags. In
 that application the marginal likelihood is maximized at $`\kappa_2 \approx 0.35`$ and
 $`\kappa_3 \approx 0.015`$, and imposing $`\kappa_2 = \kappa_3`$ lowers the log marginal
-likelihood by about 19 (Chan, forthcoming, Section 12.3.3).
+likelihood by about 19 (Chan, 2027, Section 12.3.3).
 
 ## Reproducing the Results
 
@@ -382,7 +382,7 @@ Chan, J. C. C. (2019). Asymmetric Conjugate Priors for Large Bayesian VARs. CAMA
 Chan, J. C. C. (2022). Asymmetric Conjugate Priors for Large Bayesian VARs. *Quantitative
 Economics*, 13(3): 1145-1169. [doi:10.3982/QE1381](https://doi.org/10.3982/QE1381)
 
-Chan, J. C. C. (forthcoming). *Bayesian Macroeconometrics: Methods and Applications*. Chapman &
+Chan, J. C. C. (2027). *Bayesian Macroeconometrics: Methods and Applications*. Chapman &
 Hall/CRC. [Code repository](https://github.com/joshuaccchan/bayesian-macroeconometrics)
 
 Giannone, D., Lenza, M. and Primiceri, G. E. (2015). Prior Selection for Vector Autoregressions.

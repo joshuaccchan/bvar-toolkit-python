@@ -1,5 +1,6 @@
 # Runs the tests, which compare every ported function with test cases exported from the
-# MATLAB toolkit, and the your_data.py script of every tutorial on its shipped settings.
+# MATLAB toolkit, the your_data.py script of every tutorial on its shipped settings, and the
+# guide.py script of every how-to guide.
 name: tests
 
 on:
@@ -29,6 +30,15 @@ jobs:
           MPLBACKEND: Agg
         run: |
           for f in tutorials/*/your_data.py; do
+            echo "---- $f"
+            python "$f"
+          done
+      - name: Run the guide.py script of every guide
+        shell: bash
+        env:
+          MPLBACKEND: Agg
+        run: |
+          for f in guides/*/guide.py; do
             echo "---- $f"
             python "$f"
           done

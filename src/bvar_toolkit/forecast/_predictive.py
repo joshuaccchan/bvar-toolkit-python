@@ -22,7 +22,7 @@ def predictive(A, Sig, ylag, H, tgt=None):
     bvt.forecast.mixquantile computes.
 
     See:
-    Chan, J.C.C. (forthcoming). Bayesian Macroeconometrics: Methods and Applications, Chapman &
+    Chan, J.C.C. (2027). Bayesian Macroeconometrics: Methods and Applications, Chapman &
     Hall/CRC, Section 12.2.3.
     """
     A = np.asarray(A, dtype=float)

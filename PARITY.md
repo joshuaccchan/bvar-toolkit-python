@@ -1,12 +1,13 @@
 # Parity with the MATLAB Toolkit
 
 This file lists every function in `core/+bvar` of the MATLAB toolkit with the state of its
-Python twin, and sets the numbers of each Python tutorial beside those of its MATLAB page.
+Python twin, sets the numbers of each Python tutorial beside those of its MATLAB page, and says
+how the guides differ.
 
 ## How a Function Is Checked
 
 [`tools/matlab/export_fixtures.m`](tools/matlab/export_fixtures.m) runs each MATLAB function at
-bvar-toolkit commit [`4608524`](https://github.com/joshuaccchan/bvar-toolkit/tree/4608524) and
+bvar-toolkit commit [`bb03048`](https://github.com/joshuaccchan/bvar-toolkit/tree/bb03048) and
 saves its inputs and outputs in `tests/fixtures`. The test runs the Python function on the same
 inputs, and every entry of every output must agree within 1e-10 of itself, plus 1e-14 of the
 largest entry. A function that draws random numbers runs in both languages on the same uniforms
@@ -142,7 +143,7 @@ likelihoods at the two optima differ by 1e-5, below the tolerance of the search.
 | `util` | `report` | ported | writes csv files and a json file of settings; tested in Python (`test_report`) |
 | `util` | `select_obs` | ported | same inputs; identical |
 | `util` | `shaded_band` | ported | matplotlib drawing; tested in Python (`test_shaded_band`) |
-| `util` | `simulate_var` | not yet ported | added to the MATLAB toolkit after commit 4608524 |
+| `util` | `simulate_var` | ported | replayed random numbers; largest difference 2e-15 |
 | `util` | `surform` | ported | same inputs; identical |
 | `util` | `surform2` | ported | same inputs; identical |
 | `util` | `tnormrnd` | ported | replayed random numbers; largest difference 4e-16 |
@@ -366,3 +367,13 @@ from MATLAB's and NumPy's own generators, so the two agree within Monte Carlo er
 | Largest violation of the aggregation constraints | 1.0e-13 | 7.9e-14 |
 | Inefficiency factors, median and largest: GDP, investment, volatility | 5.4, 22.5; 6.0, 20.4; 12.5, 25.0 | 5.5, 21.8; 5.6, 19.5; 15.6, 30.4 |
 | Build time | 24.6 minutes, MATLAB R2025b | 26.3 minutes, Python 3.13 |
+
+## Guides
+
+The guides generate their data with NumPy's random number generator, so a seed gives a
+different sample from MATLAB's, and the numbers on each page come from the Python sample.
+Where that sample shows a different pattern, the page says what it shows, so some sentences
+of `coefficient_draw`, `gibbs_sampler`, `var_lag_shrinkage`, `var_forecast` and
+`var_forecast_evaluation` differ from their MATLAB pages. Numbers computed from the data in
+`guides/data` alone, such as the VAR fitted in `var_simulation`, equal MATLAB's to the printed
+digits.

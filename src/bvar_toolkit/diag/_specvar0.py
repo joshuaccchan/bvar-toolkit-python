@@ -22,12 +22,12 @@ def specvar0(x, L):
       L : truncation lag, a nonnegative integer below R
       S : k-vector
 
-    For a textbook discussion, see Chan (forthcoming), Section 6.5.
+    For a textbook discussion, see Chan (2027), Section 6.5.
 
     See:
     Newey, W.K. and West, K.D. (1987). A Simple, Positive Semi-Definite, Heteroskedasticity and
     Autocorrelation Consistent Covariance Matrix, Econometrica, 55(3): 703-708.
-    Chan, J.C.C. (forthcoming). Bayesian Macroeconometrics: Methods and Applications, Chapman &
+    Chan, J.C.C. (2027). Bayesian Macroeconometrics: Methods and Applications, Chapman &
     Hall/CRC, Section 6.5.
     """
     x = _columns(x)

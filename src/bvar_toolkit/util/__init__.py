@@ -15,6 +15,7 @@ from ._mm_constraint import mm_constraint
 from ._report import report
 from ._select_obs import select_obs
 from ._shaded_band import shaded_band
+from ._simulate_var import simulate_var
 from ._surform import surform
 from ._surform2 import surform2
 from ._tnormrnd import tnormrnd
@@ -22,4 +23,5 @@ from ._vec import vec, vech
 
 __all__ = ['anormrnd', 'build_lags', 'diffmat', 'dirirnd', 'dlog_gaps', 'gam_mode', 'igrnd',
            'kron_gram', 'ldet', 'logsumexp', 'mgammaln', 'mm_constraint', 'report',
-           'select_obs', 'shaded_band', 'surform', 'surform2', 'tnormrnd', 'vec', 'vech']
+           'select_obs', 'shaded_band', 'simulate_var', 'surform', 'surform2', 'tnormrnd',
+           'vec', 'vech']

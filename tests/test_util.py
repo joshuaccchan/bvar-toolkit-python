@@ -29,6 +29,7 @@ SIMPLE = {
     'ldet': (bvt.util.ldet, None),
     'mgammaln': (bvt.util.mgammaln, ints(0)),
     'select_obs': (bvt.util.select_obs, None),
+    'simulate_var': (bvt.util.simulate_var, ints(2)),
     'surform': (bvt.util.surform, None),
     'surform2': (bvt.util.surform2, ints(1)),
     'tnormrnd': (bvt.util.tnormrnd, ints(4)),

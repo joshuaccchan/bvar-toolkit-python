@@ -4,11 +4,10 @@
 Bayesian VARs: samplers, shrinkage priors, stochastic volatility, marginal likelihoods and
 forecasting, built from fourteen published replication packages. This repository is its Python
 version: the same functions under the same names, each tested against its MATLAB twin, and the
-toolkit's tutorials with Python code.
+toolkit's tutorials and how-to guides with Python code.
 
-It covers 117 of the 118 core functions and all six tutorials; `bvar.util.simulate_var`, which
-the MATLAB how-to guides use, is not ported yet. [PARITY.md](PARITY.md) lists every function
-and how it was checked.
+It covers all 118 core functions, the six tutorials and the eight how-to guides.
+[PARITY.md](PARITY.md) lists every function and how it was checked.
 
 ## Installation
 
@@ -96,7 +95,8 @@ test objectives this minimizer lies within 2e-8 of `fminunc`'s, and the test ver
 results to the last digit and the fits agree to 5e-15, and [PARITY.md](PARITY.md) shows how
 closely the optimizers track MATLAB on the marginal likelihood of the shrinkage tutorial.
 
-The tests run on every push, together with the `your_data.py` script of every tutorial.
+The tests run on every push, together with the `your_data.py` script of every tutorial and the
+`guide.py` script of every guide.
 
 ## Tutorials
 
@@ -108,6 +108,16 @@ The tests run on every push, together with the `your_data.py` script of every tu
 | [Does Modeling the Volatility Improve My Forecasts?](tutorials/forecasting/) | [forecasting](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/forecasting) |
 | [Can I Use Many Sign Restrictions in My Large VAR?](tutorials/sign_restrictions/) | [sign_restrictions](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/sign_restrictions) |
 | [How Do I Handle Missing and Mixed-Frequency Data in My VAR?](tutorials/mixed_frequency/) | [mixed_frequency](https://github.com/joshuaccchan/bvar-toolkit/tree/main/tutorials/mixed_frequency) |
+
+## How-To Guides
+
+Each [guide](guides/) shows how to use the core functions on one small example with generated
+data, in two series of four.
+
+| Series | Guides |
+|---|---|
+| Getting Started with Bayesian VARs | [stacking the equations](guides/var_stacking/), [drawing the coefficients](guides/coefficient_draw/), [Gibbs sampling](guides/gibbs_sampler/), [choosing the shrinkage by the marginal likelihood](guides/natural_conjugate_ml/) |
+| Forecasting with a VAR | [simulating data](guides/var_simulation/), [forecasting](guides/var_forecast/), [evaluating forecasts out of sample](guides/var_forecast_evaluation/), [choosing the lag length and the shrinkage for forecasting](guides/var_lag_shrinkage/) |
 
 ## Citation
 

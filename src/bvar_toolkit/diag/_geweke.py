@@ -25,7 +25,7 @@ def geweke(draws, a=0.10, b=0.50, L='auto'):
               lags LA and LB, and a and b
 
     The long-run variances are estimated by bvt.diag.specvar0. For a textbook discussion, see
-    Chan (forthcoming), Section 6.5.1.
+    Chan (2027), Section 6.5.1.
 
     See:
     Geweke, J. (1992). Evaluating the Accuracy of Sampling-Based Approaches to the Calculation
@@ -33,7 +33,7 @@ def geweke(draws, a=0.10, b=0.50, L='auto'):
     Bayesian Statistics 4, 169-193, Oxford University Press.
     Newey, W.K. and West, K.D. (1994). Automatic Lag Selection in Covariance Matrix Estimation,
     Review of Economic Studies, 61(4): 631-653.
-    Chan, J.C.C. (forthcoming). Bayesian Macroeconometrics: Methods and Applications, Chapman &
+    Chan, J.C.C. (2027). Bayesian Macroeconometrics: Methods and Applications, Chapman &
     Hall/CRC, Section 6.5.1.
     """
     draws = _columns(draws)

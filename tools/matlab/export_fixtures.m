@@ -88,6 +88,11 @@ end
 Yz = randn(4);  Yz(3, 1) = 0;
 fx.vec = {run_case(@bvar.util.vec, {randn(4, 3)}, 1)};
 fx.vech = {run_case(@bvar.util.vech, {randn(4)}, 1), run_case(@bvar.util.vech, {Yz}, 1)};
+Asim = [.1 .2; .5 .1; .1 .4; -.2 .05; .03 -.1];  Ssim = [1 .3; .3 .5];   % a stable VAR(2)
+fx.simulate_var = {replay_case(27, @bvar.util.simulate_var, {Asim, Ssim, 6}, 2), ...
+    replay_case(28, @bvar.util.simulate_var, {Asim, Ssim, 5, [.3 -.1; 1 .2]}, 2), ...
+    replay_case(29, @bvar.util.simulate_var, {[.2 0 .1; .6 .1 0; -.1 .5 .2; 0 .2 .3], ...
+    [1 .2 0; .2 .8 .1; 0 .1 .6], 4}, 2)};
 end
 
 function fx = diag_cases()

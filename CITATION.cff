@@ -17,7 +17,8 @@ abstract: >-
   from the MATLAB library, including draws made from a stream of random
   numbers shared by the two languages. Tutorials answer questions from applied
   work with the settings of a published paper, with scripts that run the same
-  analysis on other data.
+  analysis on other data, and how-to guides show the functions at work on small
+  examples with generated data.
 keywords:
   - Bayesian econometrics
   - vector autoregression

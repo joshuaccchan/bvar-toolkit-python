@@ -426,7 +426,7 @@ Chan, J. C. C. (2023). Comparing Stochastic Volatility Specifications for Large 
 *Journal of Econometrics*, 235(2): 1419-1446.
 [doi:10.1016/j.jeconom.2022.11.003](https://doi.org/10.1016/j.jeconom.2022.11.003)
 
-Chan, J. C. C. (forthcoming). *Bayesian Macroeconometrics: Methods and Applications*. Chapman &
+Chan, J. C. C. (2027). *Bayesian Macroeconometrics: Methods and Applications*. Chapman &
 Hall/CRC. [Code repository](https://github.com/joshuaccchan/bayesian-macroeconometrics)
 
 Chan, J. C. C. and Eisenstat, E. (2015). Marginal Likelihood Estimation with the Cross-Entropy
