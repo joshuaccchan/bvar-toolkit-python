@@ -1,0 +1,170 @@
+# Weekly traffic snapshot: appends the repo's rolling 14-day GitHub traffic
+# stats to .github/traffic/traffic.csv. GitHub itself retains only 14 days of
+# traffic history; this builds the permanent series. Weekly sampling of a
+# 14-day window means consecutive rows overlap by ~7 days - the series tracks
+# levels, not disjoint weekly sums.
+#
+# A second step keeps what GitHub drops after 14 days: the counts of each day in daily.csv,
+# where a later read of a day replaces an earlier one (GitHub revises recent days, and weekly
+# runs read every day twice); the 14-day views by source of traffic in referrers.csv, grouped
+# into a few sources so that the public file names no visitor's organization; and the ten most
+# viewed pages in paths.csv.
+#
+# A third step writes the daily PyPI downloads of bvar-toolkit, without mirrors, to
+# pypi_downloads.csv, read from pypistats.org, which keeps 180 days. A day without downloads
+# is written as 0. If the read fails, the step only warns, so the traffic files are still
+# committed.
+#
+# REQUIRES the TRAFFIC_PAT secret: a fine-grained personal access token with
+# Administration:read (and Metadata:read) on this repository. The default
+# GITHUB_TOKEN cannot read traffic endpoints.
+name: Traffic snapshot
+
+on:
+  schedule:
+    - cron: '17 6 * * 1'   # Mondays 06:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Append traffic stats
+        env:
+          GH_TOKEN: ${{ secrets.TRAFFIC_PAT }}
+        run: |
+          set -e
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::TRAFFIC_PAT secret is not set (fine-grained PAT, Administration:read on this repo)"
+            exit 1
+          fi
+          f=.github/traffic/traffic.csv
+          mkdir -p .github/traffic
+          [ -f "$f" ] || echo "date,views_14d,unique_visitors_14d,clones_14d,unique_cloners_14d,stars,forks" > "$f"
+          v=$(gh api "repos/${GITHUB_REPOSITORY}/traffic/views")
+          c=$(gh api "repos/${GITHUB_REPOSITORY}/traffic/clones")
+          s=$(gh api "repos/${GITHUB_REPOSITORY}")
+          echo "$(date -u +%F),$(jq .count <<<"$v"),$(jq .uniques <<<"$v"),$(jq .count <<<"$c"),$(jq .uniques <<<"$c"),$(jq .stargazers_count <<<"$s"),$(jq .forks_count <<<"$s")" >> "$f"
+          tail -2 "$f"
+      - name: Save daily traffic, sources and pages
+        env:
+          GH_TOKEN: ${{ secrets.TRAFFIC_PAT }}
+        run: |
+          gh api "repos/${GITHUB_REPOSITORY}/traffic/views" > /tmp/views.json
+          gh api "repos/${GITHUB_REPOSITORY}/traffic/clones" > /tmp/clones.json
+          gh api "repos/${GITHUB_REPOSITORY}/traffic/popular/referrers" > /tmp/referrers.json
+          gh api "repos/${GITHUB_REPOSITORY}/traffic/popular/paths" > /tmp/paths.json
+          python3 - <<'EOF'
+          import csv, datetime, json, os
+          d = '.github/traffic'
+          today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+
+          def load(name):
+              with open('/tmp/' + name) as fh:
+                  return json.load(fh)
+
+          def read_rows(name):
+              path = os.path.join(d, name)
+              if not os.path.exists(path):
+                  return []
+              with open(path, newline='') as fh:
+                  return list(csv.DictReader(fh))
+
+          def write_rows(name, cols, rows):
+              with open(os.path.join(d, name), 'w', newline='') as fh:
+                  w = csv.DictWriter(fh, cols, lineterminator='\n')
+                  w.writeheader()
+                  w.writerows(rows)
+
+          # each day's counts; GitHub revises recent days, so a later read replaces an earlier one
+          days = {r['date']: r for r in read_rows('daily.csv')}
+          for kind, uniq in (('views', 'unique_visitors'), ('clones', 'unique_cloners')):
+              for x in load(kind + '.json')[kind]:
+                  r = days.setdefault(x['timestamp'][:10], {'date': x['timestamp'][:10]})
+                  r[kind], r[uniq], r['read_on'] = x['count'], x['uniques'], today
+          cols = ['date', 'views', 'unique_visitors', 'clones', 'unique_cloners', 'read_on']
+          write_rows('daily.csv', cols, [{c: days[k].get(c, '') for c in cols} for k in sorted(days)])
+
+          # 14-day views by source, grouped so that the file names no visitor's organization
+          def source(referrer):
+              r = referrer.lower()
+              if 'linkedin' in r or 'lnkd.in' in r:
+                  return 'LinkedIn'
+              if r == 'github.com':
+                  return 'GitHub'
+              if 'joshuachan.org' in r:
+                  return 'joshuachan.org'
+              if r in ('google', 'bing', 'duckduckgo', 'yahoo', 'baidu', 'yandex', 'ecosia') \
+                      or 'google.' in r or 'bing.' in r:
+                  return 'search'
+              if any(k in r for k in ('chatgpt', 'openai', 'perplexity', 'gemini', 'claude', 'copilot')):
+                  return 'AI assistants'
+              return 'other'
+          tot = {}
+          for x in load('referrers.json'):
+              t = tot.setdefault(source(x['referrer']), [0, 0])
+              t[0] += x['count']
+              t[1] += x['uniques']
+          rows = [r for r in read_rows('referrers.csv') if r['read_on'] != today]
+          rows += [{'read_on': today, 'source': s, 'views': v, 'unique_visitors_summed': u}
+                   for s, (v, u) in sorted(tot.items())]
+          write_rows('referrers.csv', ['read_on', 'source', 'views', 'unique_visitors_summed'], rows)
+
+          # the ten most viewed pages over the 14 days
+          rows = [r for r in read_rows('paths.csv') if r['read_on'] != today]
+          rows += [{'read_on': today, 'path': x['path'], 'views': x['count'],
+                    'unique_visitors': x['uniques']} for x in load('paths.json')]
+          write_rows('paths.csv', ['read_on', 'path', 'views', 'unique_visitors'], rows)
+          EOF
+          tail -3 .github/traffic/daily.csv
+      - name: Save daily PyPI downloads
+        env:
+          PYPI_URL: https://pypistats.org/api/packages/bvar-toolkit/overall?mirrors=false
+        run: |
+          if ! curl -fsSL --max-time 60 "$PYPI_URL" > /tmp/pypi.json; then
+            echo "::warning::Could not read the PyPI download counts from $PYPI_URL"
+            exit 0
+          fi
+          python3 - <<'EOF' || echo "::warning::Could not parse the PyPI download counts"
+          import csv, datetime, json, os
+          path = '.github/traffic/pypi_downloads.csv'
+          today = datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+          days = {}
+          if os.path.exists(path):
+              with open(path, newline='') as fh:
+                  days = {r['date']: r for r in csv.DictReader(fh)}
+          with open('/tmp/pypi.json') as fh:
+              new = {x['date']: x['downloads'] for x in json.load(fh)['data']
+                     if x['category'] == 'without_mirrors'}
+          # pypistats leaves out a day without downloads
+          day = datetime.date.fromisoformat(min(new))
+          while day <= datetime.date.fromisoformat(max(new)):
+              k = day.isoformat()
+              days[k] = {'date': k, 'downloads': new.get(k, 0), 'read_on': today}
+              day += datetime.timedelta(days=1)
+          with open(path, 'w', newline='') as fh:
+              w = csv.DictWriter(fh, ['date', 'downloads', 'read_on'], lineterminator='\n')
+              w.writeheader()
+              w.writerows(days[k] for k in sorted(days))
+          EOF
+          tail -3 .github/traffic/pypi_downloads.csv || true
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/traffic
+          git diff --cached --quiet || git commit -m "Traffic snapshot $(date -u +%F)"
+          # Another push may have landed since checkout. No other workflow writes to
+          # .github/traffic, so replaying this commit on top cannot conflict.
+          for attempt in 1 2 3; do
+            if git pull --rebase --quiet && git push --quiet; then break; fi
+            if [ "$attempt" = 3 ]; then
+              echo "::error::the traffic row could not be pushed after three attempts"
+              exit 1
+            fi
+            sleep $((attempt * 15))
+          done
