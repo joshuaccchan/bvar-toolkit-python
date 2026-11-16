@@ -23,6 +23,9 @@ def ksc_rw_h0(Ystar, h, sig, h0, rng=None):
     Distinct from ksc_rw_diffuse: different initial condition, hence different
     draws.
 
+    When all seven mixture densities of a period underflow, its indicator probabilities are
+    computed in logs.
+
     See:
     Kim, S., Shephard, N. and Chib, S. (1998). Stochastic Volatility: Likelihood
     Inference and Comparison with ARCH Models, Review of Economic Studies, 65(3):

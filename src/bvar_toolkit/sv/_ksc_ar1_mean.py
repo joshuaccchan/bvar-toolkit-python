@@ -29,6 +29,9 @@ def ksc_ar1_mean(ystar, h, mu, rho, sig2, rng=None):
     NOT interchangeable with the random-walk variants ksc_rw_h0 / ksc_rw_diffuse:
     different state equations.
 
+    When all seven mixture densities of a period underflow, its indicator probabilities are
+    computed in logs.
+
     See:
     Kim, S., Shephard, N. and Chib, S. (1998). Stochastic Volatility: Likelihood
     Inference and Comparison with ARCH Models, Review of Economic Studies, 65(3):
@@ -49,6 +52,10 @@ def ksc_ar1_mean(ystar, h, mu, rho, sig2, rng=None):
     sd = np.sqrt(SIG2_N)
     q = P_N * (np.exp(-0.5 * ((ystar[:, None] - (h[:, None] + M_N)) / sd)**2)
                / (np.sqrt(2 * np.pi) * sd))
+    bad = ~(q.sum(axis=1) > 0)           # all seven densities underflow: weigh them in logs
+    if bad.any():
+        lq = np.log(P_N) - np.log(sd) - 0.5 * ((ystar[bad, None] - (h[bad, None] + M_N)) / sd)**2
+        q[bad] = np.exp(lq - lq.max(axis=1, keepdims=True))
     q = q / q.sum(axis=1, keepdims=True)
     S = 7 - np.sum(tmprand[:, None] < np.cumsum(q, axis=1), axis=1)
 

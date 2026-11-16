@@ -18,6 +18,9 @@ def tnormrnd(mu, sigma2, a, b, N=None, rng=None):
       rng        : None, an integer seed, a numpy.random.Generator or a bvt.Stream
       t          : N-vector of draws
 
+    Far in the upper tail, where both normal cdf values round to 1, a draw comes from the
+    mirrored lower tail with the same uniform.
+
     See:
     Chan, J.C.C. (2023). Comparing Stochastic Volatility Specifications for Large Bayesian
     VARs, Journal of Econometrics, 235(2): 1419-1446.
@@ -35,4 +38,10 @@ def tnormrnd(mu, sigma2, a, b, N=None, rng=None):
     u = as_rng(rng).rand(N)
     p1 = ndtr((np.asarray(a, dtype=float) - mu) / sigma)
     p2 = ndtr((np.asarray(b, dtype=float) - mu) / sigma)
-    return mu + sigma * ndtri(p1 + (p2 - p1) * u)
+    C = ndtri(p1 + (p2 - p1) * u)
+    bad = ~np.isfinite(C)
+    if bad.any():          # far in the upper tail p1 and p2 round to 1: -t is in (-b, -a)
+        q1 = ndtr((mu - np.asarray(b, dtype=float)) / sigma)
+        q2 = ndtr((mu - np.asarray(a, dtype=float)) / sigma)
+        C = np.where(bad, -ndtri(q2 + (q1 - q2) * u), C)
+    return mu + sigma * C

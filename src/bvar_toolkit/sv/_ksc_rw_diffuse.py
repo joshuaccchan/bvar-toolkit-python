@@ -12,6 +12,10 @@ def _indicators(ystar, h, r):
     sd = np.sqrt(SIG2_N)
     q = P_N * (np.exp(-0.5 * ((ystar[:, None] - (h[:, None] + M_N)) / sd)**2)
                / (np.sqrt(2 * np.pi) * sd))
+    bad = ~(q.sum(axis=1) > 0)           # all seven densities underflow: weigh them in logs
+    if bad.any():
+        lq = np.log(P_N) - np.log(sd) - 0.5 * ((ystar[bad, None] - (h[bad, None] + M_N)) / sd)**2
+        q[bad] = np.exp(lq - lq.max(axis=1, keepdims=True))
     q = q / q.sum(axis=1, keepdims=True)
     return 7 - np.sum(tmprand[:, None] < np.cumsum(q, axis=1), axis=1)
 
@@ -47,6 +51,9 @@ def ksc_rw_diffuse(ystar, h, omega2h, Vh, rng=None):
       or a bvt.Stream.
 
     Distinct from ksc_rw_h0: different initial condition, hence different draws.
+
+    When all seven mixture densities of a period underflow, its indicator probabilities are
+    computed in logs.
 
     See:
     Kim, S., Shephard, N. and Chib, S. (1998). Stochastic Volatility: Likelihood
