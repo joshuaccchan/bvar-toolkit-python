@@ -171,23 +171,38 @@ g3 = np.logspace(np.log10(r3[0]), np.log10(r3[1]), 41)
 K2, K3 = np.meshgrid(g2, g3)
 L = np.array([bvt.ml.acp(p, Y, Z, bvt.priors.acp_stru(n, p, [a, b, 1, 100], sig2, nonstationary))
               for a, b in zip(K2.ravel(), K3.ravel())]).reshape(K2.shape)
+    # bands of the log marginal likelihood minus its maximum, at the edges the grid reaches
+d = L - L.max()
+lev = np.array([-500, -200, -50, -10, -2])
+lev = lev[lev > d.min()]
 fig, ax = plt.subplots()
-ax.contour(K2, K3, np.exp(L - L.max()), levels=np.arange(1, 10) / 10, linewidths=1)
-ax.set_xscale('log')
-ax.set_yscale('log')
+if lev.size:
+    ax.contourf(K2, K3, d, levels=np.concatenate([[d.min() - 1], lev, [1]]),
+                colors=np.linspace([0.97, 0.97, 0.98], [0.16, 0.33, 0.58], lev.size + 1))
+    cs = ax.contour(K2, K3, d, levels=lev, colors=[(0.35, 0.35, 0.35)], linewidths=0.6,
+                    linestyles='solid')
+    if (lev < -2).any():
+        ax.clabel(cs, levels=lev[lev < -2], fmt='%d', fontsize=9)
+ax.plot(ka[0], ka[1], marker='*', ms=13, mfc='w', mec='k', linestyle='none',
+        label='asymmetric prior (maximum)')
+ax.plot(ks[0], ks[1], marker='o', ms=7, mfc='k', mec='w', linestyle='none', label='best symmetric prior')
+ax.plot(.04, .0016, marker='s', ms=7, mfc='k', mec='w', linestyle='none', label='subjective prior')
 dlo, dhi = max(g2[0], g3[0]), min(g2[-1], g3[-1])
 if dlo < dhi:
-    ax.plot([dlo, dhi], [dlo, dhi], 'k--', linewidth=0.8)
-ax.plot(ka[0], ka[1], 'k*', mfc='w', ms=13, label='asymmetric prior')
-ax.plot(ks[0], ks[1], 'ko', mfc='k', label='symmetric prior')
-ax.plot(.04, .0016, 'ks', mfc='k', label='subjective prior')
+    ax.plot([dlo, dhi], [dlo, dhi], 'k--', linewidth=0.8, label=r'$\kappa_2 = \kappa_3$')
+ax.set_xscale('log')
+ax.set_yscale('log')
+ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f'{v:g}'))
+ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda v, _: f'{v:g}'))
+ax.tick_params(direction='out')
 ax.set_xlim(r2)
 ax.set_ylim(r3)
-ax.legend(loc='best', frameon=False)
-ax.set_xlabel(r'$\kappa_2$ (own lags), smaller is tighter')
-ax.set_ylabel(r'$\kappa_3$ (other lags), smaller is tighter')
-ax.set_title(f'Marginal likelihood relative to its maximum, p = {p}')
+ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.14), ncol=2, frameon=False)
+ax.set_xlabel(r'$\kappa_2$, own lags (smaller is tighter)')
+ax.set_ylabel(r'$\kappa_3$, other lags (smaller is tighter)')
+ax.set_title(f'Log marginal likelihood minus its maximum, p = {p}')
 ax.spines[['top', 'right']].set_visible(False)
+fig.tight_layout()
 
 # ---- the report ----
 # One row per prior at p lags and per lag length in the scan, the forecasts in their own

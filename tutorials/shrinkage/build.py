@@ -159,36 +159,52 @@ def main():
     print(f'mass at the edges of the grid: kappa2 {m2[0] + m2[-1]:.2g}, kappa3 {m3[0] + m3[-1]:.2g}')
 
         # the figure spans all three priors, which a linear grid around the optimum leaves
-        # out, so it uses a logarithmic one
-    f2 = np.logspace(np.log10(min(k_asym[0] / 10, k_sym[0], k_subj[0]) / 1.5), np.log10(k_asym[0] * 4), 61)
-    f3 = np.logspace(np.log10(min(k_asym[1] / 10, k_subj[1]) / 1.5),
-                     np.log10(max(k_asym[1] * 10, k_sym[1]) * 1.5), 61)
+        # out, so it uses a logarithmic one; it shows the log marginal likelihood minus its
+        # maximum in bands, so that the far priors sit on the surface
+    f2 = np.logspace(np.log10(0.02), np.log10(2), 101)
+    f3 = np.logspace(np.log10(0.0005), np.log10(0.2), 101)
     F2, F3 = np.meshgrid(f2, f3)
     lf = np.array([bvt.ml.acp(p, Y, Z, bvt.priors.acp_stru(n, p, [a, b, 1, 100], sig2))
                    for a, b in zip(F2.ravel(), F3.ravel())]).reshape(F2.shape)
-    fig, ax = plt.subplots(figsize=(6.4, 5.2))
-    ax.contour(F2, F3, np.exp(lf - lf.max()), levels=np.arange(1, 10) / 10, linewidths=1,
-               cmap='viridis')
+    d = lf - ml_asym                                # log marginal likelihood minus its maximum
+    lev = np.array([-500, -200, -50, -10, -2])      # the band edges
+    assert d.min() < lev[0] and d.max() <= 1e-6, 'the grid must span every band, below the maximum'
+    edges = np.concatenate([[d.min() - 1], lev, [1]])   # the bands, lowest first
+    fig, ax = plt.subplots(figsize=(7.6, 5.6))
+    ax.contourf(F2, F3, d, levels=edges,
+                colors=np.linspace([0.97, 0.97, 0.98], [0.16, 0.33, 0.58], lev.size + 1))
+    cs = ax.contour(F2, F3, d, levels=lev, colors=[(0.35, 0.35, 0.35)], linewidths=0.6,
+                    linestyles='solid')
+        # the labels go at points along each contour, where they clear the markers and the edges
+    ax.clabel(cs, levels=lev[lev < -2], fmt='%d', fontsize=10, colors=[(0.15, 0.15, 0.15)],
+              manual=[(0.045, 0.12), (0.8, 0.06), (0.035, 0.0012), (0.5, 0.028), (1.2, 0.0025),
+                      (0.22, 0.012)])
+    dl = [max(f2[0], f3[0]), min(f2[-1], f3[-1])]
+    ax.plot(k_asym[0], k_asym[1], marker='*', ms=16, mfc='w', mec='k', mew=1, linestyle='none',
+            label='asymmetric prior (maximum)')
+    ax.plot(k_sym[0], k_sym[1], marker='o', ms=9, mfc='k', mec='w', linestyle='none',
+            label='best symmetric prior')
+    ax.plot(k_subj[0], k_subj[1], marker='s', ms=9, mfc='k', mec='w', linestyle='none',
+            label='subjective prior')
+    ax.plot(dl, dl, 'k--', linewidth=1, label=r'$\kappa_2 = \kappa_3$')
     ax.set_xscale('log')
     ax.set_yscale('log')
-    dlo, dhi = max(f2[0], f3[0]), min(f2[-1], f3[-1])
-    ax.plot([dlo, dhi], [dlo, dhi], 'k--', linewidth=0.8)
-    ax.text(dhi, dhi, r' $\kappa_2 = \kappa_3$', va='top', fontsize=10)
-    kmark = [k_asym[:2], k_sym[:2], k_subj[:2]]
-    style = [dict(marker='*', mfc='w', ms=14), dict(marker='o', mfc='k', ms=6), dict(marker='s', mfc='k', ms=6)]
-    off = [1.9, 1.15, 1.15]                         # the asymmetric label clears its contours
-    for j, lab in enumerate(['asymmetric', 'symmetric', 'subjective']):
-        ax.plot(kmark[j][0], kmark[j][1], color='k', linestyle='none', **style[j])
-        ax.text(kmark[j][0] * off[j], kmark[j][1], lab, fontsize=10, va='center')
+    xt, yt = [0.05, 0.1, 0.2, 0.5, 1, 2], [0.001, 0.003, 0.01, 0.03, 0.1]
+    ax.set_xticks(xt, [f'{v:g}' for v in xt])
+    ax.set_yticks(yt, [f'{v:g}' for v in yt])
+    ax.minorticks_off()
+    ax.tick_params(direction='out', labelsize=12)
     ax.set_xlim(f2[0], f2[-1])
     ax.set_ylim(f3[0], f3[-1])
-    ax.set_xlabel(r'$\kappa_2$ (own lags), smaller is tighter')
-    ax.set_ylabel(r'$\kappa_3$ (other lags), smaller is tighter')
-    ax.set_title('Marginal likelihood relative to its maximum')
+    ax.set_xlabel(r'$\kappa_2$, own lags (smaller is tighter)', fontsize=13)
+    ax.set_ylabel(r'$\kappa_3$, other lags (smaller is tighter)', fontsize=13)
     ax.spines[['top', 'right']].set_visible(False)
-    fig.tight_layout()
-    fig.savefig(os.path.join(TDIR, 'fig_contour.png'), dpi=150)
+    ax.legend(loc='upper center', bbox_to_anchor=(0.5, -0.13), ncol=4, frameon=False, fontsize=11,
+              handletextpad=0.4, columnspacing=1.2)
+    fig.savefig(os.path.join(TDIR, 'fig_contour.png'), dpi=200, bbox_inches='tight')
     plt.close(fig)
+    print(f'Figure 1: the symmetric prior is {ml_sym - ml_asym:.1f} and the subjective prior '
+          f'{ml_subj - ml_asym:.1f} below the maximum')
 
         # the same comparison in the 15-variable application of the published version, with
         # the settings of the package's main_ACP_apps.m (lines 16, 37, 38, 40 and 53)
