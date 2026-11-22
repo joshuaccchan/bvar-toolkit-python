@@ -1,14 +1,6 @@
 """guide - the code of guides/var_lag_shrinkage/README.md: the lag length and the shrinkage of the
-BVAR of guides/var_forecast chosen by the marginal likelihood at the end of each quarter from 120
-to 239 of the sample of guides/var_simulation, against 24 alternatives: a fixed lag length from
-one to eight, with c1 chosen by the marginal likelihood, c1 = 0.2^2 or c1 = 10, a nearly flat
-prior. The one-quarter-ahead forecasts are scored by the joint log predictive likelihood, with
-all the data up to each origin and with its last 80 quarters. Then the checks, and forecasts
-averaged over c1. Section 2 and the functions at the end are the code to adapt.
-
-Reads guides/data/macro3_Q.csv. Saves fig_choice.png next to this file.
-
-Usage, from the root of the repository:  python guides/var_lag_shrinkage/guide.py
+BVAR of guides/var_forecast, chosen by the marginal likelihood at each forecast origin. Section 2
+and the functions at the end are the code to adapt. Saves fig_choice.png next to this file.
 """
 
 import os

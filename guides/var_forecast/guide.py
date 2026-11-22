@@ -1,13 +1,7 @@
 """guide - the code of guides/var_forecast/README.md: forecasts of the next 20 quarters from a
-VAR(4) estimated under the natural conjugate prior on 240 quarters simulated from the true model
-of guides/var_simulation. Independent draws of the parameters from their posterior, one
-simulated path per draw, and the forecasts read off the paths; the same forecasts from the true
-parameters and from the posterior means of the parameters; the checks; then the probability of
-a recession. Sections 2 to 4 and the function ncp_lml above them are the code to adapt.
-
-Reads guides/data/macro3_Q.csv. Saves fig_fan.png and fig_widths.png next to this file.
-
-Usage, from the root of the repository:  python guides/var_forecast/guide.py
+BVAR estimated on a sample from the true model of guides/var_simulation, one simulated path per
+posterior draw. Sections 2 to 4 and the function ncp_lml above them are the code to adapt. Saves
+fig_fan.png and fig_widths.png next to this file.
 """
 
 import os

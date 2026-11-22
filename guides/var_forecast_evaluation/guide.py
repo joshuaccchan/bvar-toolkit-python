@@ -1,14 +1,6 @@
-"""guide - the code of guides/var_forecast_evaluation/README.md: the BVAR of guides/var_forecast and
-an AR(4) for each variable, re-estimated at the end of each quarter from 120 to 239 of the sample
-of guides/var_simulation on the data up to that quarter only, and forecasting one to four
-quarters ahead; the forecasts scored against the outcomes by the root mean squared forecast
-error, the log predictive likelihood and the coverage of the 90% intervals, together with the
-forecasts of the true model; the checks. Section 2 and the functions ncp_forecast and ncp_lml at
-the top are the code to adapt.
-
-Reads guides/data/macro3_Q.csv. Saves fig_scores.png next to this file.
-
-Usage, from the root of the repository:  python guides/var_forecast_evaluation/guide.py
+"""guide - the code of guides/var_forecast_evaluation/README.md: the BVAR of guides/var_forecast
+and an AR(4), re-estimated at each quarter and scored out of sample. Section 2 and the functions
+ncp_forecast and ncp_lml at the top are the code to adapt. Saves fig_scores.png next to this file.
 """
 
 import os

@@ -1,14 +1,7 @@
-"""guide - the code of guides/natural_conjugate_ml/README.md: the VAR(2) of three variables of
-guides/var_stacking under the natural conjugate prior, whose prior variances follow the
-Minnesota prior with one hyperparameter c1 for all lag coefficients; the log marginal likelihood
-in closed form, its maximum over c1, and the posterior means at the chosen value; the same
-choice on 200 additional datasets; the checks against bvt.ml.kron_bvar; the choice of the lag
-length; and the two hyperparameters of the asymmetric conjugate prior of tutorials/shrinkage.
-Section 2 and the function ncp_lml above it are the code to adapt.
-
-Saves fig_marglik.png next to this file.
-
-Usage, from the root of the repository:  python guides/natural_conjugate_ml/guide.py
+"""guide - the code of guides/natural_conjugate_ml/README.md: the shrinkage of the VAR of
+guides/var_stacking chosen by the closed-form marginal likelihood under the natural conjugate
+prior. Section 2 and the function ncp_lml above it are the code to adapt. Saves fig_marglik.png
+next to this file.
 """
 
 import os
