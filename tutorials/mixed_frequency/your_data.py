@@ -10,12 +10,13 @@ use the tutorial's data from 1990 with short chains and take under a minute; the
 
 The file has one row per month, with the dates in datecol in the format datefmt, such as
 2026-07 for %Y-%m. A quarterly series holds its level in the last month of each quarter and
-nothing in the other months. 'dlog' turns a series into 100 times its log change, quarter on
-quarter for a quarterly series, so that its monthly values are monthly growth rates tied to it
-by the aggregation of Mariano and Murasawa (2003); 'level' uses a monthly series as it is,
-after multiplying by scale. A monthly series may have missing values anywhere, and when one in
-levels is missing inside the sample, the growth rates around it keep their known sum. The
-first p months serve as initial conditions.
+nothing in the other months. It may start late or end early. The script stops if a quarter is
+missing between its first and last values in the file. 'dlog' turns a series into 100 times
+its log change, quarter on quarter for a quarterly series, so that its monthly values are
+monthly growth rates tied to it by the aggregation of Mariano and Murasawa (2003); 'level' uses
+a monthly series as it is, after multiplying by scale. A monthly series may have missing
+values anywhere, and when one in levels is missing inside the sample, the growth rates around
+it keep their known sum. The first p months serve as initial conditions.
 
 Usage, from the root of the repository:  python tutorials/mixed_frequency/your_data.py
 """
@@ -77,12 +78,20 @@ def month(s):
 
 
 # the window, with one month before it for the first growth rate
+span = f'the file runs from {dates[0]} to {dates[-1]}'
 lo, hi = 1, dates.size - 1
 if first:
-    lo = int(np.flatnonzero(dates >= month(first))[0])
+    after = np.flatnonzero(dates >= month(first))
+    assert after.size, f'first = {first} is after the last month in the file; {span}'
+    lo = int(after[0])
 if last:
-    hi = int(np.flatnonzero(dates <= month(last))[-1])
-assert lo >= 1 and hi - lo > p + 12, 'the sample is too short or out of the file'
+    before = np.flatnonzero(dates <= month(last))
+    assert before.size, f'last = {last} is before the first month in the file; {span}'
+    hi = int(before[-1])
+assert lo >= 1, (f'first must be {dates[1]} or later, since the first growth rate needs the '
+                 f'month before it; {span}')
+assert hi - lo > p + 12, \
+    f'the sample from {dates[lo]} to {dates[hi]} is too short for {p} lags; {span}'
 d = dates[lo:hi + 1]
 T = d.size
 
@@ -92,7 +101,9 @@ for j in np.flatnonzero(quarterly):
     iobs = np.flatnonzero(~np.isnan(Lv[:, j]))
     assert np.all(dates[iobs].astype(int) % 12 % 3 == 2), \
         f'series {names[j]} must hold its values in the last month of each quarter'
-    assert np.all(np.diff(iobs) == 3), f'series {names[j]} has a quarter missing inside its sample'
+    k = np.flatnonzero(np.diff(iobs) != 3)
+    assert k.size == 0, (f'series {names[j]} has no value for {dates[iobs[k[0]]] + 3}, between its '
+                         f'first and last values in the file')
     g = np.full(Lv.shape[0], np.nan)
     g[iobs[1:]] = 100 * np.diff(np.log(Lv[iobs, j]))
     X[:, j] = g[lo:hi + 1]
